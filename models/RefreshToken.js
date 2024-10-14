@@ -25,7 +25,7 @@ const RefreshToken = sequelize.define(
 
 const User = require('./User')
 User.hasMany(RefreshToken, { foreignKey: 'userId' });
-RefreshToken.belongsTo(User);
+RefreshToken.belongsTo(User, { foreignKey: 'userId' });
 
 
 
