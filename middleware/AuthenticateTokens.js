@@ -16,7 +16,6 @@ const authenticateTokens = (req, res, next) => {
             return res.sendStatus(403); // Token invalid
         }
 
-        console.log(user)
         
         req.user = user
         next()
