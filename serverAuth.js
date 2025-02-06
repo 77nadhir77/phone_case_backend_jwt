@@ -541,6 +541,24 @@ app.put("/orders/:id", authenticateTokens, async (req, res) => {
 	}
 });
 
+app.post("/signup", async (req, res) => {
+	const { username, password } = req.body;
+	if (!username || !password) {
+		return res.status(400).json({ message: "Username and password are required" });
+	}
+	try {
+		const user = await User.create({
+			username,
+			password,
+		});
+		return res.status(201).json({ message: "User created successfully" });
+	} catch (error) {
+		console.error("Error creating user:", error);
+		return res.status(500).json({user,  message: "Error creating user" });
+	}
+});
+	
+
 app.listen(PORT, async () => {
 	console.log(`server running on port ${PORT}`);
 
@@ -549,7 +567,6 @@ app.listen(PORT, async () => {
 		console.log(
 			"Connection to the database has been established successfully."
 		);
-
 		await sequelize.sync({ force: false });
 
 		console.log("All models were synchronized successfully.");
