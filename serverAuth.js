@@ -17,19 +17,11 @@ const Address = require("./models/Address");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const { Op, fn, col } = require("sequelize");
+const {storage} = require('./cloudinaryConfig');
 
 const PORT = 8000;
 
 const cors = require("cors");
-
-const storage = multer.diskStorage({
-	destination: (req, file, cb) => {
-		cb(null, "uploads/");
-	},
-	filename: (req, file, cb) => {
-		cb(null, Date.now() + path.extname(file.originalname)); // Save file with a unique name
-	},
-});
 
 const upload = multer({ storage: storage });
 
@@ -280,17 +272,19 @@ app.post(
 	async (req, res) => {
 		try {
 			const image = await Image.findOne({
-				where: { filename: req.params.filename },
+				where: { filename: `uploads/${req.params.filename}` },
 			});
 
 			if (!image) {
+				console.log("image not found")
 				return res.status(404).json({ message: "Image not found" });
 			}
 
 			const jsonData = JSON.parse(req.body.json);
-
-			image.cropedImage = req.file.filename;
+			console.log("parrsed")
+			image.cropedImage = req.file.path;
 			await image.save();
+			
 
 			const phoneCase = await PhoneCase.create({
 				color: jsonData.color,
@@ -307,9 +301,7 @@ app.post(
 			});
 
 			res.status(200).json({
-				cropedImageUrl: `${req.protocol}://${req.get("host")}/uploads/${
-					image.cropedImage
-				}`,
+				cropedImageUrl: image.cropedImage,
 				phoneCase: phoneCase,
 				order: order,
 			});
@@ -334,9 +326,7 @@ app.get("/uploads/image", authenticateTokens, async (req, res) => {
 		}
 
 		// Get the file path from the last uploaded image
-		const filePath = `${req.protocol}://${req.get("host")}/uploads/${
-			lastUploadedImage.filename
-		}`;
+		const filePath = lastUploadedImage.path
 
 		// Serve the image file
 		res.json({ url: filePath, filename: lastUploadedImage.filename });
@@ -568,6 +558,7 @@ app.listen(PORT, async () => {
 			"Connection to the database has been established successfully."
 		);
 		await sequelize.sync({ force: false });
+		
 
 		console.log("All models were synchronized successfully.");
 	} catch (error) {
