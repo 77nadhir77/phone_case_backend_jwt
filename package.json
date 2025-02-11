@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon serverAuth.js",
     "start": "npm run startAuthServer",
     "startAuthServer": "node serverAuth.js",
+    "postinstall": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
