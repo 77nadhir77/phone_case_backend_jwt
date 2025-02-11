@@ -548,6 +548,9 @@ app.post("/signup", async (req, res) => {
 	}
 });
 	
+app.get("/", (req, res)=> {
+	return res.send("server is running!!")
+})
 
 app.listen(PORT, async () => {
 	console.log(`server running on port ${PORT}`);
