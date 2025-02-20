@@ -19,7 +19,7 @@ const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const { Op, fn, col } = require("sequelize");
 const {storage} = require('./cloudinaryConfig');
 
-const PORT = 8000;
+const PORT = 8080;
 
 const cors = require("cors");
 
