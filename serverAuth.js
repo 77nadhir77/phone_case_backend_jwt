@@ -473,10 +473,11 @@ app.get("/orders", authenticateTokens, async (req, res) => {
 				include: [
 					{
 						model: PhoneCase,
+						as: "phonecase",
 						attributes: [], // Omit individual fields as we only need the sum
 					},
 				],
-				attributes: [[fn("SUM", col("PhoneCase.price")), "lastWeekPrice"]],
+				attributes: [[fn("SUM", col("phonecase.price")), "lastWeekPrice"]],
 			});
 
 			const lastMonthPrice = await Order.findAll({
@@ -560,14 +561,9 @@ app.listen(PORT, async () => {
 		console.log(
 			"Connection to the database has been established successfully."
 		);
-		await sequelize.sync({ force: true });
-		await User.create({
-			username: "admin",
-			password: "admin",
-			role: "admin"
-		})
+		await sequelize.sync({ force: false });
 		
-
+		
 		console.log("All models were synchronized successfully.");
 	} catch (error) {
 		console.error("Unable to connect to the database:", error);
