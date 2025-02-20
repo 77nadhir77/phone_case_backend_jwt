@@ -477,7 +477,9 @@ app.get("/orders", authenticateTokens, async (req, res) => {
 						attributes: [], // Omit individual fields as we only need the sum
 					},
 				],
-				attributes: [[fn("SUM", col("phonecase.price")), "lastWeekPrice"]],
+				attributes: [[fn("SUM", col("phonecase.price")), "lastWeekPrice"], "orders.id"],
+				group: ["orders.id"],
+				raw: true
 			});
 
 			const lastMonthPrice = await Order.findAll({
@@ -493,7 +495,9 @@ app.get("/orders", authenticateTokens, async (req, res) => {
 						attributes: [], // Omit individual fields as we only need the sum
 					},
 				],
-				attributes: [[fn("SUM", col("PhoneCase.price")), "lastMonthPrice"]],
+				attributes: [[fn("SUM", col("phonecase.price")), "lastMonthPrice"], "orders.id"],
+				group: ["orders.id"],
+				raw: true
 			});
 
 			const lastWeekSum = lastWeekPrice[0]?.get("lastWeekPrice") || 0;
