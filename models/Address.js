@@ -30,7 +30,7 @@ const Address = sequelize.define('Addresses', {
     allowNull: false
   },
   phone: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING(20),
     allowNull: true
   },
   email: {
