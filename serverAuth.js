@@ -7,7 +7,7 @@ const User = require("./models/User");
 const RefreshToken = require("./models/RefreshToken");
 const Image = require("./models/Image");
 const PhoneCase = require("./models/PhoneCase");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const path = require("path");
 const authenticateTokens = require("./middleware/AuthenticateTokens");
@@ -19,7 +19,7 @@ const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const { Op, fn, col } = require("sequelize");
 const {storage} = require('./cloudinaryConfig');
 
-const PORT = 8000;
+const PORT = 8080;
 
 const cors = require("cors");
 
@@ -337,7 +337,7 @@ app.get("/uploads/image", authenticateTokens, async (req, res) => {
 });
 
 app.post("/create-checkout-session", authenticateTokens, async (req, res) => {
-	let MY_DOMAIN = "http://localhost:3000";
+	let MY_DOMAIN = process.env.FRONTEND_DOMAIN;
 	try {
 		const session = await stripe.checkout.sessions.create({
 			payment_method_types: ["card", "paypal"],
@@ -473,10 +473,13 @@ app.get("/orders", authenticateTokens, async (req, res) => {
 				include: [
 					{
 						model: PhoneCase,
+						as: "phonecase",
 						attributes: [], // Omit individual fields as we only need the sum
 					},
 				],
-				attributes: [[fn("SUM", col("PhoneCase.price")), "lastWeekPrice"]],
+				attributes: [[fn("SUM", col("phonecase.price")), "lastWeekPrice"], "orders.id"],
+				group: ["orders.id"],
+			
 			});
 
 			const lastMonthPrice = await Order.findAll({
@@ -492,7 +495,9 @@ app.get("/orders", authenticateTokens, async (req, res) => {
 						attributes: [], // Omit individual fields as we only need the sum
 					},
 				],
-				attributes: [[fn("SUM", col("PhoneCase.price")), "lastMonthPrice"]],
+				attributes: [[fn("SUM", col("phonecase.price")), "lastMonthPrice"], "orders.id"],
+				group: ["orders.id"],
+				
 			});
 
 			const lastWeekSum = lastWeekPrice[0]?.get("lastWeekPrice") || 0;
@@ -548,6 +553,9 @@ app.post("/signup", async (req, res) => {
 	}
 });
 	
+app.get("/", (req, res)=> {
+	return res.send("server is running!!")
+})
 
 app.listen(PORT, async () => {
 	console.log(`server running on port ${PORT}`);
@@ -559,7 +567,7 @@ app.listen(PORT, async () => {
 		);
 		await sequelize.sync({ force: false });
 		
-
+		
 		console.log("All models were synchronized successfully.");
 	} catch (error) {
 		console.error("Unable to connect to the database:", error);
