@@ -337,7 +337,7 @@ app.get("/uploads/image", authenticateTokens, async (req, res) => {
 });
 
 app.post("/create-checkout-session", authenticateTokens, async (req, res) => {
-	let MY_DOMAIN = "http://localhost:3000";
+	let MY_DOMAIN = process.env.FRONTEND_DOMAIN;
 	try {
 		const session = await stripe.checkout.sessions.create({
 			payment_method_types: ["card", "paypal"],
